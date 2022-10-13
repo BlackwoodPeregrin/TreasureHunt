@@ -4,7 +4,7 @@
 
 namespace Nightmare {
 
-enum Color { kNoColor, kYellow, kOrange, kRed };  // цвет фишки
+enum Color { kNoColor, kBlue, kGreen, kRed };  // цвет фишки
 
 enum TypeCell { kChip, kBlock, kFree };  // тип клетки
 
@@ -16,9 +16,9 @@ constexpr u_int8_t kBlockCellsInField = 6;  // кол-во неактивных 
 
 constexpr u_int8_t kFreeCellsInField = 4;  // кол-во свободных клеток на поле
 
-constexpr u_int8_t kYellowChipCellInField = 5;  // кол-во желтых клеток на поле
+constexpr u_int8_t kBlueChipCellInField = 5;  // кол-во желтых клеток на поле
 
-constexpr u_int8_t kOrangeChipCellInField =
+constexpr u_int8_t kGreenChipCellInField =
     5;  // кол-во оранжевых клеток на поле
 
 constexpr u_int8_t kRedChipCellInField = 5;  // кол-во красных клеток на поле
@@ -31,44 +31,48 @@ constexpr std::pair<int, int> kCoordFreeCells[kFreeCellsInField] = {
     {1, 1}, {1, 3}, {3, 1}, {3, 3}};  // координаты всех свободных клеток на
                                       // поле при старте игры
 
-//
+/*=== Абстрактный класс клетки игрового поля ===*/
 class AbstractCell {
  public:
   AbstractCell(int type_cell) : m_type_cell(type_cell) {}
-  ~AbstractCell() = default;
+  virtual ~AbstractCell() = default;
 
-  auto TypeCell() { return m_type_cell; }
+  auto TypeCell() -> int { return m_type_cell; }
   virtual auto GetColor() -> int = 0;
 
  private:
   int m_type_cell;
 };
 
+/*=== Класс Фишек Игрового Поля ===*/
 class ChipCell : public AbstractCell {
  public:
   ChipCell(int color_chip, int type_cell = TypeCell::kChip)
       : AbstractCell(type_cell), m_color_chip(color_chip) {}
   auto GetColor() -> int override { return m_color_chip; }
+  ~ChipCell() = default;
 
  private:
   int m_color_chip;
 };
 
+/*=== Класс Неактивных Клеток Игрового Поля ===*/
 class BlockCell : public AbstractCell {
  public:
   BlockCell(int type_cell = TypeCell::kBlock) : AbstractCell(type_cell) {}
   auto GetColor() -> int override { return Color::kNoColor; }
+  ~BlockCell() = default;
 };
 
+/*=== Класс Свободных Клеток Игрового Поля ===*/
 class FreeCell : public AbstractCell {
  public:
   FreeCell(int type_cell = TypeCell::kFree) : AbstractCell(type_cell) {}
   auto GetColor() -> int override { return Color::kNoColor; }
+  ~FreeCell() = default;
 };
 
-//
-
-// игрвое поле 5х5
+/*=== Класс Игрового Поля ===*/
 class PlayingField {
  public:
   PlayingField() { InizialiseField_(); }
@@ -105,12 +109,17 @@ class PlayingField {
   }
 
  private:
+  // клетки на игровом поле
   std::vector<std::vector<AbstractCell *>> m_cell;
 };
 
+/*=== Класс Механики Игры ===*/
 class GameMechanics {
  public:
-  GameMechanics() : m_current(nullptr), m_field(nullptr) { srand(time(0)); }
+  GameMechanics()
+      : m_current(nullptr), m_field(nullptr), m_field_generate(false) {
+    srand(time(0));
+  }
   GameMechanics(GameMechanics const &other) = delete;
   GameMechanics(GameMechanics &&other) = delete;
   ~GameMechanics() { delete m_field; }
@@ -118,14 +127,17 @@ class GameMechanics {
   auto operator=(GameMechanics const &other) -> GameMechanics & = delete;
   auto operator=(GameMechanics &&other) -> GameMechanics & = delete;
 
+  // генерация игрового поля
   auto GenerateField() -> void {
     // очищаем поле если ранее было сгенерировано
-    delete m_field;
+    if (IsGenerateField_()) {
+      delete m_field;
+    }
     m_field = new PlayingField;
     //
     std::vector<std::pair<int, u_int8_t>> possible_colors(
-        {{Color::kYellow, kYellowChipCellInField},
-         {Color::kOrange, kOrangeChipCellInField},
+        {{Color::kBlue, kBlueChipCellInField},
+         {Color::kGreen, kGreenChipCellInField},
          {Color::kRed, kRedChipCellInField}});
     //
     for (int row = 0; row < kRowsField; ++row) {
@@ -138,15 +150,77 @@ class GameMechanics {
           m_field->operator[](row)[column] = new FreeCell;
           // генерируем на поле цветные фишки
         } else {
-          u_int8_t color = rand() % possible_colors.size();
           m_field->operator[](row)[column] =
               new ChipCell(GenerateColorChip_(possible_colors));
         }
       }
     }
+    m_field_generate = true;
   }
 
-  auto PrintField() -> void {
+  auto ClearField() -> void {
+    delete m_field;
+    m_field = nullptr;
+    m_field_generate = false;
+  }
+
+  auto SwitchCurrentFocusOnFiled(int row, int column) -> void {
+    if (!IsGenerateField_()) {
+      throw std::out_of_range("Field is not generate");
+    }
+    if (m_current->TypeCell() == TypeCell::kChip &&
+        IsSelectedFreeCell(row, column)) {
+      // std::swap(m_current, m_field->operator[](row)[column]);
+      //
+    } else {
+      m_current = m_field->operator[](row)[column];
+    }
+  }
+
+  auto IsSelectedBlockCell(int row, int column) const -> bool {
+    if (!IsGenerateField_()) {
+      throw std::out_of_range("Field is not generate");
+    }
+    return m_field->operator[](row)[column]->TypeCell() == TypeCell::kBlock;
+  }
+
+  auto IsSelectedFreeCell(int row, int column) const -> bool {
+    if (!IsGenerateField_()) {
+      throw std::out_of_range("Field is not generate");
+    }
+    return m_field->operator[](row)[column]->TypeCell() == TypeCell::kFree;
+  }
+
+  auto IsSelectedChipCell(int row, int column) const -> bool {
+    if (!IsGenerateField_()) {
+      throw std::out_of_range("Field is not generate");
+    }
+    return m_field->operator[](row)[column]->TypeCell() == TypeCell::kChip;
+  }
+
+  auto GetPossibleSwapChipInField(int row, int column) const
+      -> std::vector<std::pair<int, int>> {
+    std::vector<std::pair<int, int>> possible_swap;
+    //
+    if (IsSelectedChipCell(row, column)) {
+      if (row != 0 && IsSelectedFreeCell(row - 1, column)) {
+        possible_swap.push_back({row - 1, column});
+      }
+      if (row < kRowsField && IsSelectedFreeCell(row + 1, column)) {
+        possible_swap.push_back({row + 1, column});
+      }
+      if (column != 0 && IsSelectedFreeCell(row, column - 1)) {
+        possible_swap.push_back({row, column - 1});
+      }
+      if (column < kColumnsField && IsSelectedFreeCell(row, column + 1)) {
+        possible_swap.push_back({row, column + 1});
+      }
+    }
+    //
+    return possible_swap;
+  }
+
+  auto PrintField() const -> void {
     for (int i = 0; i < 5; ++i) {
       for (int j = 0; j < 5; ++j) {
         if (m_field->operator[](i)[j]->TypeCell() == TypeCell::kBlock) {
@@ -155,9 +229,9 @@ class GameMechanics {
           std::cout << "   ";
         } else {
           std::string color_print{};
-          if (m_field->operator[](i)[j]->GetColor() == Color::kYellow) {
+          if (m_field->operator[](i)[j]->GetColor() == Color::kBlue) {
             color_print = "\033[38;2;255;255;0m";
-          } else if (m_field->operator[](i)[j]->GetColor() == Color::kOrange) {
+          } else if (m_field->operator[](i)[j]->GetColor() == Color::kGreen) {
             color_print = "\033[38;2;201;100;59m";
           } else {
             color_print = "\033[38;2;255;0;0m";
@@ -185,7 +259,7 @@ class GameMechanics {
     return color;
   }
 
-  auto IsBlockCell_(int row, int column) -> bool {
+  auto IsBlockCell_(int row, int column) const -> bool {
     for (auto coord : kCoordBlockCells) {
       if (coord.first == row && coord.second == column) {
         return true;
@@ -194,7 +268,7 @@ class GameMechanics {
     return false;
   }
 
-  auto IsFreeCell_(int row, int column) -> bool {
+  auto IsFreeCell_(int row, int column) const -> bool {
     for (auto coord : kCoordFreeCells) {
       if (coord.first == row && coord.second == column) {
         return true;
@@ -203,9 +277,12 @@ class GameMechanics {
     return false;
   }
 
+  auto IsGenerateField_() const -> bool { return m_field_generate; }
+
  private:
   AbstractCell *m_current;
   PlayingField *m_field;
+  bool m_field_generate;
 };
 
 }  // namespace Nightmare
