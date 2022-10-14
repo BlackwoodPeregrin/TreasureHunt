@@ -9,13 +9,13 @@ public:
     StyleHelper() = default;
     ~StyleHelper() = default;
 
-    inline static QString getMainWidgetsStyle() {
+    static auto getMainWidgetsStyle() -> QString {
         return "QWidget {"
                "   background-image: url(:/img/background.jpg);"
                "};";
     }
 
-    inline static QString getStartGameAboutGameButtonStyle() {
+    static auto getStartGameAboutGameButtonStyle() -> QString {
         return "QPushButton {"
                "   background: none;"
                "   background-color: rgb(170, 118, 92);"
@@ -30,7 +30,19 @@ public:
                "};";
     }
 
-    inline static QString getReleasedButtonStyle() {
+    static auto getStartGameButtonIcon() -> QString {
+        return ":/img/play.png";
+    }
+
+    static auto getStopGameButtonIcon() -> QString {
+        return ":/img/pause.png";
+    }
+
+    static auto getAboutGameButtonIcon() -> QString {
+        return ":/img/info.png";
+    }
+
+    static auto getReleasedButtonStyle() -> QString {
         return "QPushButton {"
                "   background: none;"
                "   background-image: url(:/img/deck.jpg);"
@@ -43,7 +55,7 @@ public:
                "};";
     }
 
-    inline static QString getPressedButtonStyle() {
+     static auto getPressedButtonStyle() -> QString {
         return "QPushButton {"
                "   background: none;"
                "   background-image: url(:/img/deck.jpg);"
@@ -54,7 +66,7 @@ public:
                "};";
     }
 
-    inline static QString getGamePushButtonResultStyle() {
+     static auto getButtonStyleUnderGameField() -> QString {
         return "QPushButton {"
                "   background: none;"
                "   border: none;"
@@ -62,19 +74,19 @@ public:
                "};";
     }
 
-    inline static QString getPathToRubyTexture() {
+    static auto getPathToRubyIcon() -> QString {
         return ":/img/ruby.png";
     }
 
-    inline static QString getPathToEmeraldTexture() {
+    static auto getPathToEmeraldIcon() -> QString {
         return ":/img/emeralds.png";
     }
 
-    inline static QString getPathToSaphfireTexture() {
+    static auto getPathToSaphfireIcon() -> QString {
         return ":/img/saphfire.png";
     }
 
-    inline static QString getPathToBoxTexture() {
+    static auto getPathToBoxIcon() -> QString {
         return ":/img/box.png";
     }
 
