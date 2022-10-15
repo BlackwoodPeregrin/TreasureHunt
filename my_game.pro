@@ -16,9 +16,11 @@ HEADERS += \
     controller_game.hpp \
     model_game.hpp \
     style_helper.h \
+    victory_dialog.h \
     view_game.h
 
 FORMS += \
+    victory_dialog.ui \
     view_game.ui
 
 # Default rules for deployment.

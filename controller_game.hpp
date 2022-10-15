@@ -32,42 +32,50 @@ public:
         m_model.ClearField();
     }
 
-    auto IsSelectedBlockCell(int row, int column) const -> bool {
+    auto IsSelectedBlockCell(int id_button) const -> bool {
+        // конвертирую кнопку с интерфейса в координаты игрового поля
+        int row = id_button / 5;
+        int column = id_button % 5;
         try {
             return m_model.IsSelectedBlockCell(row, column);
         } catch (std::exception const &e) {
-            // игровое поле не инициализированно
-            return false;
+            return false; // игровое поле не инициализированно
         }
     }
 
-    auto IsSelectedFreeCell(int row, int column) const -> bool {
+    auto IsSelectedFreeCell(int id_button) const -> bool {
+        // конвертирую кнопку с интерфейса в координаты игрового поля
+        int row = id_button / 5;
+        int column = id_button % 5;
         try {
             return m_model.IsSelectedFreeCell(row, column);
         } catch (std::exception const &e) {
-            // игровое поле не инициализированно
-            return false;
+            return false; // игровое поле не инициализированно
         }
-
     }
 
-    auto IsSelectedChipCell(int row, int column) const -> bool {
+    auto IsSelectedChipCell(int id_button) const -> bool {
+        // конвертирую кнопку с интерфейса в координаты игрового поля
+        int row = id_button / 5;
+        int column = id_button % 5;
         try {
             return m_model.IsSelectedChipCell(row, column);
         } catch (std::exception const &e) {
-            // игровое поле не инициализированно
-            return false;
+            return false; // игровое поле не инициализированно
         }
     }
 
-    auto GetColorCell(int row, int column) const -> int {
+    auto GetColorCell(int id_button) const -> int {
+        // конвертирую кнопку с интерфейса в координаты игрового поля
+        int row = id_button / 5;
+        int column = id_button % 5;
         try {
             return m_model.GetColorCell(row, column);
         } catch (std::exception const &e) {
-            // игровое поле не инициализированно
-            return -1;
+            return -1; // игровое поле не инициализированно
         }
     }
+
 
     auto GetPosRedChipInExpectedRow() const -> int {
         return m_model.GetPosRedChipInExpectedRow();
@@ -81,27 +89,52 @@ public:
         return m_model.GetPosBlueChipInExpectedRow();
     }
 
-//    auto GetPossibleSwapChipInField(int row, int column) const
-//    -> std::vector<std::pair<int, int>> {
-//        return m_model.GetPossibleSwapChipInField(row, column);
-//    }
 
-    auto SwitchCurrentFocusOnFiled(int row, int column) -> void {
-        m_model.SwitchCurrentFocusOnFiled(row, column);
+    auto ChangePossibleStepsChipInPlayingField_(int id_button) -> void {
+        // конвертирую кнопку с интерфейса в координаты игрового поля
+        int row = id_button / 5;
+        int column = id_button % 5;
+        m_model.ChangePossibleStepsChipInPlayingField(row, column);
     }
 
-    auto IsCellPossibleStep(int row, int column) const -> bool {
+    auto IsCellPossibleStep(int id_button) const -> bool {
+        // конвертирую кнопку с интерфейса в координаты игрового поля
+        int row = id_button / 5;
+        int column = id_button % 5;
         return m_model.IsCellPossibleStep(row, column);
     }
 
-    auto GetCurrentCoord() const -> std::pair<int, int> {
-        return m_model.GetCurrentCoord();
+    auto GetCurrentCoord() const -> int {
+        // конвертирую координаты бэка в id кнопки на интерфейсе
+        std::pair<int, int> coord = m_model.GetCurrentCoord();
+        if (coord.first == -1 && coord.second == -1) {
+            // текущая ячейка не была выбрана
+            return -1;
+        }
+        int id_button = coord.first * 5 + coord.second;
+        return id_button;
     }
 
-    auto SwapCells(int row, int column) -> void {
+    auto SwapCells(int id_button) -> void {
+        // конвертирую кнопку с интерфейса в координаты игрового поля
+        int row = id_button / 5;
+        int column = id_button % 5;
         m_model.SwapCells(row, column);
     }
 
+    auto GetVectorPossibleSteps() const -> std::vector<int> {
+        std::vector<std::pair<int,int>> coords = m_model.GetVectorPossibleSteps();
+        // конвертирую координаты бэка в id кнопки на интерфейсе
+        std::vector<int> id_buttons;
+        for (auto &coord : coords) {
+            id_buttons.push_back(coord.first * 5 + coord.second);
+        }
+        return id_buttons;
+    }
+
+    auto IsVictoryGame() const -> bool {
+        return m_model.IsGameVictory();
+    }
 
 private:
     GameMechanics m_model;

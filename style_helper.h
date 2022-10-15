@@ -15,13 +15,28 @@ public:
                "};";
     }
 
+    static auto getDialogWindowStyle() -> QString {
+        return "QDialog {"
+               "   background-image: url(:/img/deck.jpg);"
+               "};";
+    }
+
+    static auto getStyleLabel() -> QString {
+        return "QLabel {"
+               "   font-size: 15px;"
+               "};";
+    }
+
     static auto getStartGameAboutGameButtonStyle() -> QString {
         return "QPushButton {"
                "   background: none;"
                "   background-color: rgb(170, 118, 92);"
                "   border: none;"
+               "   border-style: solid;"
+               "   border-width: 2px;"
                "   border-radius: 15px;"
                "   border-color: gray;"
+               "   font-size: 15px;"
                "}\n"
                "QPushButton:hover {"
                 "   border-style: solid;"
@@ -61,7 +76,18 @@ public:
                "   background-image: url(:/img/deck.jpg);"
                "   border-style: solid;"
                "   border-width: 3px;"
-               "   border-color: rgb(170, 118, 92);"
+               "   border-color: rgb(0, 214, 120);"
+               "   border-radius: 15px;"
+               "};";
+    }
+
+     static auto getPressedButtonChooseStyle() -> QString {
+        return "QPushButton {"
+               "   background: none;"
+               "   background-image: url(:/img/deck.jpg);"
+               "   border-style: solid;"
+               "   border-width: 3px;"
+               "   border-color: #ffba00;"
                "   border-radius: 15px;"
                "};";
     }

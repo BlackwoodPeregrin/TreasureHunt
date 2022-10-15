@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QButtonGroup>
 #include "controller_game.hpp"
+#include "victory_dialog.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -73,29 +74,30 @@ protected:
     // функция очищает все иконки находящиеся на игровом поле
     auto clearAllIcons_() -> void;
 
-    // функция присваивает иконку поступающецй кнопки размера icon_size
-    auto setIconToButton_(QAbstractButton *button, QIcon const &icon, QSize const &icon_size) -> void;
-
     // функция перерисовки иконок игрового поля
     auto installGenerateIconsPlayingFiled_() -> void;
 
     // функция устанавливает иконки для строки над игровым поедм
     auto installIconToCellInRowOverPlayingField_(int index_in_row, QString const &path_to_icon) -> void;
 
-    // функция по id кнопки возвращает координаты на игровом поле (строка, столбец)
-    auto getCoordButtonInPlayingField_(int id_button) -> std::pair<int, int>;
-    auto getIdButtonInPlayingField_(int row, int column) -> int;
-
 private slots:
     void on_button_about_game_clicked();
     void on_button_back_clicked();
     void on_button_start_game_clicked();
     void on_button_in_playing_field_clicked(int id_button);
+    void on_dialog_button_start_clecked();
+
+protected:
+    // функции для смены стиля отобрадения игрового поля
+    auto changeStylePressedButtons_() -> void;
+    auto changeStyleReleasedButtons_() -> void;
+
 
 private:
     Ui::Widget *ui;
     bool m_is_game_start{false};
     ControllerGame &m_controller{ControllerGame::getInstance()};
+    VictoryDialog *m_victory_dialog;
     QButtonGroup m_group;
 
 };

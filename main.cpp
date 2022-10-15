@@ -1,5 +1,6 @@
 #include "view_game.h"
 
+
 #include <QApplication>
 
 int main(int argc, char *argv[])

@@ -1,12 +1,14 @@
 #include <iostream>
 #include <random>
+#include <set>
 #include <vector>
-#include <array>
+#include <map>
+
 
 namespace Nightmare {
 
 constexpr u_int8_t kColumnsField = 5;  // ширина игрового поля
-constexpr u_int8_t kRowsField = 5;  // высота игрового поля
+constexpr u_int8_t kRowsField = 5;     // высота игрового поля
 
 enum TypeCell { kChip, kBlock, kFree };  // тип клетки
 constexpr u_int8_t kBlockCellsInField = 6;  // кол-во неактивных клеток на поле
@@ -21,11 +23,9 @@ constexpr std::pair<int, int> kCoordFreeCells[kFreeCellsInField] = {
                                       // поле при старте игры
 
 enum Color { kNoColor, kBlue, kGreen, kRed };  // цвет фишки
-constexpr u_int8_t kGreenChipCellInField =
-    5;  // кол-во зеленых фишек на поле
+constexpr u_int8_t kGreenChipCellInField = 5;  // кол-во зеленых фишек на поле
 constexpr u_int8_t kRedChipCellInField = 5;  // кол-во красных фишек на поле
 constexpr u_int8_t kBlueChipCellInField = 5;  // кол-во синих фишек на поле
-
 
 /*=== Абстрактный класс клетки игрового поля ===*/
 class AbstractCell {
@@ -34,7 +34,7 @@ class AbstractCell {
   virtual ~AbstractCell() = default;
 
   auto TypeCell() -> int { return m_type_cell; }
-  virtual auto GetColor() -> int = 0;
+  virtual auto GetColor() const -> int = 0;
 
  private:
   int m_type_cell;
@@ -43,17 +43,17 @@ class AbstractCell {
 /*=== Класс Фишек Игрового Поля ===*/
 class ChipCell : public AbstractCell {
  public:
-  ChipCell(int color_chip, int type_cell = TypeCell::kChip)
-      : AbstractCell(type_cell), m_color_chip(color_chip) {}
-  auto GetColor() -> int override { return m_color_chip; }
+  ChipCell(int color_chip)
+      : AbstractCell(TypeCell::kChip), m_color_chip(color_chip) {}
+  auto GetColor() const -> int override { return m_color_chip; }
   ~ChipCell() = default;
 
   auto operator==(ChipCell const &other) const -> bool {
-      return m_color_chip == other.m_color_chip;
+    return m_color_chip == other.m_color_chip;
   }
 
   auto operator!=(ChipCell const &other) const -> bool {
-      return !operator==(other);
+    return !operator==(other);
   }
 
  private:
@@ -63,16 +63,16 @@ class ChipCell : public AbstractCell {
 /*=== Класс Неактивных Клеток Игрового Поля ===*/
 class BlockCell : public AbstractCell {
  public:
-  BlockCell(int type_cell = TypeCell::kBlock) : AbstractCell(type_cell) {}
-  auto GetColor() -> int override { return Color::kNoColor; }
+  BlockCell() : AbstractCell(TypeCell::kBlock) {}
+  auto GetColor() const -> int override { return Color::kNoColor; }
   ~BlockCell() = default;
 };
 
 /*=== Класс Свободных Клеток Игрового Поля ===*/
 class FreeCell : public AbstractCell {
  public:
-  FreeCell(int type_cell = TypeCell::kFree) : AbstractCell(type_cell) {}
-  auto GetColor() -> int override { return Color::kNoColor; }
+  FreeCell() : AbstractCell(TypeCell::kFree) {}
+  auto GetColor() const -> int override { return Color::kNoColor; }
   ~FreeCell() = default;
 };
 
@@ -117,36 +117,11 @@ class PlayingField {
   std::vector<std::vector<AbstractCell *>> m_cell;
 };
 
-
-///*=== Класс Ожидаемого Ряда Находящегося Над Полем Игры ===*/
-//class RowOverPlayingField {
-//public:
-// RowOverPlayingField() = default;
-// RowOverPlayingField(PlayingField const &other) = delete;
-// RowOverPlayingField(PlayingField &&other) = delete;
-// ~RowOverPlayingField() = default;
-
-// auto operator=(RowOverPlayingField const &other) -> PlayingField & = delete;
-// auto operator=(RowOverPlayingField &&other) -> PlayingField & = delete;
-
-// auto GenerateRow() {
-//     //
-// }
-
-//protected:
-
-
-//private:
-// // клетки на игровом поле
-// int index_row[Color::kRed];
-// std::vector<ChipCell> m_cell;
-//};
-
 /*=== Класс Механики Игры ===*/
 class GameMechanics {
  public:
   GameMechanics()
-      : m_current(nullptr), m_field(nullptr), m_field_generate(false) {
+      : m_field(nullptr), m_field_generate(false) {
     srand(time(0));
   }
   GameMechanics(GameMechanics const &other) = delete;
@@ -164,10 +139,9 @@ class GameMechanics {
     }
     m_field = new PlayingField;
     //
-    std::vector<std::pair<int, u_int8_t>> possible_colors(
-        {{Color::kBlue, kBlueChipCellInField},
-         {Color::kGreen, kGreenChipCellInField},
-         {Color::kRed, kRedChipCellInField}});
+    std::vector<std::pair<int, u_int8_t>> possible_colors({{Color::kBlue, kBlueChipCellInField},
+                                             {Color::kGreen, kGreenChipCellInField},
+                                             {Color::kRed, kRedChipCellInField}});
     // генерация игрового поля
     for (int row = 0; row < kRowsField; ++row) {
       for (int column = 0; column < kColumnsField; ++column) {
@@ -184,7 +158,10 @@ class GameMechanics {
         }
       }
     }
+
+    // генерация финальной строки над полем
     GenerateExpectedRow_();
+
     m_field_generate = true;
   }
 
@@ -194,45 +171,64 @@ class GameMechanics {
     m_field_generate = false;
   }
 
-  auto SwitchCurrentFocusOnFiled(int row, int column) -> void {
-    if (!IsGenerateField_()) {
-      throw std::out_of_range("Field is not generate");
-    }
-    // если клетка является фишкой, меняю текущий указатель на фишку
-    // и перезаполняю вектор возможных перемещений относительно данной клетки
-    if (IsSelectedChipCell(row, column)) {
-        m_current = m_field->operator[](row)[column];
-        m_current_coord = {row, column};
-        InstallPossibleSwapChipInField_(row, column);
+  // поменять местами ячейки игрвого поля
+  auto SwapCells(int row, int column) -> void {
+    if (IsSelectedFreeCell(row, column)) {
+        std::swap(m_field->operator[](m_current_coord.first)[m_current_coord.second],
+                m_field->operator[](row)[column]);
+        // очищаем предидущие возможные перемещения
+        m_possible_steps.clear();
+        m_current_coord = {-1, -1};
     }
   }
 
-  auto SwapCells(int row, int column) -> void {
-      std::swap(m_current, m_field->operator[](row)[column]);
+  // сохранить в вектор возможные перемещения фишки на игровом поле
+  auto ChangePossibleStepsChipInPlayingField(int row, int column) -> void {
+    //
+    if (IsSelectedChipCell(row, column)) {
+      //  сохраняем текущие координаты
+      m_current_coord = {row, column};
       // очищаем предидущие возможные перемещения
       m_possible_steps.clear();
+
+      if ((row > 0) && IsSelectedFreeCell(row - 1, column)) {
+          m_possible_steps.push_back({row - 1, column});
+      }
+
+      if ((row < kRowsField - 1) && IsSelectedFreeCell(row + 1, column)) {
+        m_possible_steps.push_back({row + 1, column});
+      }
+
+      if ((column > 0) && IsSelectedFreeCell(row, column - 1)) {
+        m_possible_steps.push_back({row, column - 1});
+      }
+
+      if ((column < kColumnsField - 1) && IsSelectedFreeCell(row, column + 1)) {
+        m_possible_steps.push_back({row, column + 1});
+      }
+    }
   }
 
- auto GetCurrentCoord() const -> std::pair<int, int> {
+  auto GetVectorPossibleSteps() const -> std::vector<std::pair<int,int>> {
+      return m_possible_steps;
+  }
+
+  // получить координаты выбранной игровой фишки на поле
+  auto GetCurrentCoord() const -> std::pair<int, int> {
     return m_current_coord;
- }
-
-  auto IsCurrentCellIsChip() const -> bool {
-      if (m_current != nullptr) {
-          return m_current->TypeCell() == TypeCell::kChip;
-      }
-      return false;
   }
 
+  // является ли ячейка возможным перемещением
   auto IsCellPossibleStep(int row, int column) const -> bool {
-      for (auto &coord : m_possible_steps) {
-          if (coord.first == row && coord.second == column) {
-              return true;
-          }
+    for (auto &coord : m_possible_steps) {
+      if (coord.first == row && coord.second == column) {
+        return true;
       }
-      return false;
+    }
+    return false;
   }
 
+  // является ли выбранная ячейка неактивной
   auto IsSelectedBlockCell(int row, int column) const -> bool {
     if (!IsGenerateField_()) {
       throw std::out_of_range("Field is not generate");
@@ -240,6 +236,7 @@ class GameMechanics {
     return m_field->operator[](row)[column]->TypeCell() == TypeCell::kBlock;
   }
 
+  // является ли выбранная ячейка свободной
   auto IsSelectedFreeCell(int row, int column) const -> bool {
     if (!IsGenerateField_()) {
       throw std::out_of_range("Field is not generate");
@@ -247,6 +244,7 @@ class GameMechanics {
     return m_field->operator[](row)[column]->TypeCell() == TypeCell::kFree;
   }
 
+  // является ли выбранная ячейка игровой фишкой
   auto IsSelectedChipCell(int row, int column) const -> bool {
     if (!IsGenerateField_()) {
       throw std::out_of_range("Field is not generate");
@@ -254,109 +252,77 @@ class GameMechanics {
     return m_field->operator[](row)[column]->TypeCell() == TypeCell::kChip;
   }
 
+  // получить цвет выбранной ячейки
   auto GetColorCell(int row, int column) const -> int {
-      if (!IsGenerateField_()) {
-        throw std::out_of_range("Field is not generate");
-      }
-      return m_field->operator[](row)[column]->GetColor();
+    if (!IsGenerateField_()) {
+      throw std::out_of_range("Field is not generate");
+    }
+    return m_field->operator[](row)[column]->GetColor();
   }
 
   auto GetPosRedChipInExpectedRow() const -> int {
-    return m_expected_row[Color::kRed - 1].second;
+    auto iter = m_expected_row.find(Color::kRed);
+    return (*iter).second;
   }
 
   auto GetPosGreenChipInExpectedRow() const -> int {
-    return m_expected_row[Color::kGreen - 1].second;
+    auto iter = m_expected_row.find(Color::kGreen);
+    return (*iter).second;
   }
 
   auto GetPosBlueChipInExpectedRow() const -> int {
-    return m_expected_row[Color::kBlue - 1].second;
+    auto iter = m_expected_row.find(Color::kBlue);
+    return (*iter).second;
   }
 
-  auto PrintField() const -> void {
-    for (int i = 0; i < 5; ++i) {
-      for (int j = 0; j < 5; ++j) {
-        if (m_field->operator[](i)[j]->TypeCell() == TypeCell::kBlock) {
-          std::cout << " o ";
-        } else if (m_field->operator[](i)[j]->TypeCell() == TypeCell::kFree) {
-          std::cout << "   ";
-        } else {
-          std::string color_print{};
-          if (m_field->operator[](i)[j]->GetColor() == Color::kBlue) {
-            color_print = "\033[38;2;255;255;0m";
-          } else if (m_field->operator[](i)[j]->GetColor() == Color::kGreen) {
-            color_print = "\033[38;2;201;100;59m";
-          } else {
-            color_print = "\033[38;2;255;0;0m";
+  // проверка на победу в игре
+  auto IsGameVictory() const -> bool {
+      for (auto [color, index_column] : m_expected_row) {
+          for (int row = 0; row < kRowsField; ++row) {
+              if (color != m_field->operator[](row)[index_column]->GetColor()) {
+                  return false;
+              }
           }
-          std::cout << color_print << " # "
-                    << "\033[0m";
-        }
       }
-      std::cout << std::endl;
-    }
+      return true;
   }
 
  protected:
 
-  auto InstallPossibleSwapChipInField_(int row, int column) -> void {
+  auto GenerateColorChip_(std::vector<std::pair<int, u_int8_t>> &possible_colors) -> int {
     //
-    if (IsSelectedChipCell(row, column)) {
-      // очищаем предидущие возможные перемещения
-      m_possible_steps.clear();
-
-      if (row != 0 && IsSelectedFreeCell(row - 1, column)) {
-        m_possible_steps.push_back({row - 1, column});
-      }
-      if (row < kRowsField && IsSelectedFreeCell(row + 1, column)) {
-        m_possible_steps.push_back({row + 1, column});
-      }
-      if (column != 0 && IsSelectedFreeCell(row, column - 1)) {
-        m_possible_steps.push_back({row, column - 1});
-      }
-      if (column < kColumnsField && IsSelectedFreeCell(row, column + 1)) {
-        m_possible_steps.push_back({row, column + 1});
-      }
-    }
-  }
-
-  auto GenerateColorChip_(
-      std::vector<std::pair<int, u_int8_t>> &possible_colors) -> int {
-    u_int8_t index_color = rand() % possible_colors.size();
+    int index_color = rand() % possible_colors.size();
     int color = possible_colors[index_color].first;
     if (--possible_colors[index_color].second == 0) {
-      auto iter = possible_colors.begin();
-      while (*iter != possible_colors[index_color]) {
-        ++iter;
-      }
-      possible_colors.erase(iter);
+        auto iter = possible_colors.begin();
+        for (int i = 0; i < index_color; ++i) {
+            ++iter;
+        }
+        possible_colors.erase(iter);
     }
     return color;
   }
 
   auto GenerateExpectedRow_() -> void {
-      // если была сгенерирвоана, то очищаем предидущую генерацию
-      if (!m_expected_row.empty()) {
-          m_expected_row.clear();
-      }
-      //
+    // если была сгенерирвоана, то очищаем предидущую генерацию
+    if (!m_expected_row.empty()) {
+      m_expected_row.clear();
+    }
+    //
 
-      std::vector<ChipCell> chips({ChipCell(Color::kBlue), ChipCell(Color::kGreen), ChipCell(Color::kRed)});
-      int index_chip = 0;
-      std::vector<int> pos_chip_in_row({0, 2, 5});
+    int colors[Color::kRed]{Color::kBlue, Color::kGreen, Color::kRed};
+    std::set<int> pos_chip_in_row({0, 2, 4});
 
-      for (int i = 0; i < chips.size(); ++i) {
-          auto random_chip_index = pos_chip_in_row[rand() % pos_chip_in_row.size()];
-          m_expected_row.push_back({chips[index_chip++], random_chip_index});
-          // удаление элемента из списка генерации
-          for (auto it = pos_chip_in_row.begin(); it != pos_chip_in_row.end(); ++it) {
-              if (*it == random_chip_index) {
-                  pos_chip_in_row.erase(it);
-                  break;
-              }
-          }
-          //
+    for (int i = 0; i < Color::kRed; ++i) {
+      int r_index = rand() % pos_chip_in_row.size();
+      auto iter = pos_chip_in_row.begin();
+      for (int j = 0; j < r_index; ++j) {
+          ++iter;
       }
+      m_expected_row.insert({colors[i], *iter});
+      // удаление элемента из списка генерации
+      pos_chip_in_row.erase(iter);
+    }
   }
 
   auto IsBlockCell_(int row, int column) const -> bool {
@@ -380,11 +346,10 @@ class GameMechanics {
   auto IsGenerateField_() const -> bool { return m_field_generate; }
 
  private:
-  std::pair<int, int> m_current_coord;
-  AbstractCell *m_current;
-  std::vector<std::pair<int, int>> m_possible_steps;
+  std::pair<int, int> m_current_coord{-1, -1};
+  std::vector<std::pair<int,int>> m_possible_steps;
   PlayingField *m_field;
-  std::vector<std::pair<ChipCell, int>> m_expected_row;
+  std::map<int, int> m_expected_row;
   bool m_field_generate;
 };
 
