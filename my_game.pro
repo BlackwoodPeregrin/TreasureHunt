@@ -30,3 +30,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     image.qrc
+
+DISTFILES += \
+    application_icon.png
+
+ICON += application_icon.png

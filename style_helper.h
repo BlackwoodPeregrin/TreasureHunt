@@ -3,119 +3,156 @@
 
 #include <QString>
 
-class StyleHelper
-{
-public:
-    StyleHelper() = default;
-    ~StyleHelper() = default;
+namespace InSearchOfTreasure {
 
-    static auto getMainWidgetsStyle() -> QString {
-        return "QWidget {"
-               "   background-image: url(:/img/background.jpg);"
-               "};";
-    }
+class StyleHelper {
+ public:
+  StyleHelper() = default;
+  ~StyleHelper() = default;
 
-    static auto getDialogWindowStyle() -> QString {
-        return "QDialog {"
-               "   background-image: url(:/img/deck.jpg);"
-               "};";
-    }
+  static auto getBackgroundWidget() -> QString {
+    return "QWidget {"
+           "   background-image: url(:/img/background.jpg);"
+           "};";
+  }
 
-    static auto getStyleLabel() -> QString {
-        return "QLabel {"
-               "   font-size: 15px;"
-               "};";
-    }
+  static auto getBackgroundPlayingField() -> QString {
+    return "QWidget {"
+           "   background-image: url(:/img/background_playing_field.jpg);"
+           "};";
+  }
 
-    static auto getStartGameAboutGameButtonStyle() -> QString {
-        return "QPushButton {"
-               "   background: none;"
-               "   background-color: rgb(170, 118, 92);"
-               "   border: none;"
-               "   border-style: solid;"
-               "   border-width: 2px;"
-               "   border-radius: 15px;"
-               "   border-color: gray;"
-               "   font-size: 15px;"
-               "}\n"
-               "QPushButton:hover {"
-                "   border-style: solid;"
-                "   border-width: 2px;"
-                "   border-color: black;"
-               "};";
-    }
+  static auto getDialogWindowStyle() -> QString {
+    return "QDialog {"
+           "   background-image: url(:/img/deck.jpg);"
+           "};";
+  }
 
-    static auto getStartGameButtonIcon() -> QString {
-        return ":/img/play.png";
-    }
+  static auto getStyleLabel() -> QString {
+    return "QLabel {"
+           "   font-size: 15px;"
+           "};";
+  }
 
-    static auto getStopGameButtonIcon() -> QString {
-        return ":/img/pause.png";
-    }
+  static auto getStyleLabelAboutGame() -> QString {
+    return "QLabel {"
+           "   font-size: 18px;"
+           "   color: rgb(0, 0, 0);"
+           "   background: none;"
+           "   background-color: gray;"
+           "   border: none;"
+           "   border-style: solid;"
+           "   border-width: 2px;"
+           "   border-radius: 15px;"
+           "};";
+  }
 
-    static auto getAboutGameButtonIcon() -> QString {
-        return ":/img/info.png";
-    }
+  static auto getUndoButtonStyle() -> QString {
+    return "QPushButton {"
+           "   background: none;"
+           "   background-color: gray;"
+           "   border: none;"
+           "   border-style: solid;"
+           "   border-width: 2px;"
+           "   border-radius: 15px;"
+           "   border-color: black;"
+           "}\n"
+           "QPushButton:hover {"
+           "   border-style: solid;"
+           "   border-width: 2px;"
+           "   border-color: gray;"
+           "};";
+  }
 
-    static auto getReleasedButtonStyle() -> QString {
-        return "QPushButton {"
-               "   background: none;"
-               "   background-image: url(:/img/deck.jpg);"
-               "   border-radius: 15px;"
-               "}\n"
-               "QPushButton:hover {"
-                "   border-style: solid;"
-                "   border-width: 3px;"
-                "   border-color: black;"
-               "};";
-    }
+  static auto getStartGameAboutGameButtonStyle() -> QString {
+    return "QPushButton {"
+           "   background: none;"
+           "   background-color: rgb(170, 118, 92);"
+           "   border: none;"
+           "   border-style: solid;"
+           "   border-width: 2px;"
+           "   border-radius: 15px;"
+           "   border-color: gray;"
+           "   font-size: 15px;"
+           "}\n"
+           "QPushButton:hover {"
+           "   border-style: solid;"
+           "   border-width: 2px;"
+           "   border-color: black;"
+           "};";
+  }
 
-     static auto getPressedButtonStyle() -> QString {
-        return "QPushButton {"
-               "   background: none;"
-               "   background-image: url(:/img/deck.jpg);"
-               "   border-style: solid;"
-               "   border-width: 3px;"
-               "   border-color: rgb(0, 214, 120);"
-               "   border-radius: 15px;"
-               "};";
-    }
+  static auto getStartGameButtonIcon() -> QString { return ":/img/play.png"; }
 
-     static auto getPressedButtonChooseStyle() -> QString {
-        return "QPushButton {"
-               "   background: none;"
-               "   background-image: url(:/img/deck.jpg);"
-               "   border-style: solid;"
-               "   border-width: 3px;"
-               "   border-color: #ffba00;"
-               "   border-radius: 15px;"
-               "};";
-    }
+  static auto getStopGameButtonIcon() -> QString { return ":/img/pause.png"; }
 
-     static auto getButtonStyleUnderGameField() -> QString {
-        return "QPushButton {"
-               "   background: none;"
-               "   border: none;"
-               "   border-radius: 15px;"
-               "};";
-    }
+  static auto getAboutGameButtonIcon() -> QString { return ":/img/info.png"; }
 
-    static auto getPathToRubyIcon() -> QString {
-        return ":/img/ruby.png";
-    }
+  static auto getPathToUndoIcon() -> QString { return ":/img/undo.png"; }
 
-    static auto getPathToEmeraldIcon() -> QString {
-        return ":/img/emeralds.png";
-    }
+  static auto getReleasedButtonStyle() -> QString {
+    return "QPushButton {"
+           "   background: none;"
+           "   background-image: url(:/img/deck.jpg);"
+           "   border-radius: 15px;"
+           "}\n"
+           "QPushButton:hover {"
+           "   border-style: solid;"
+           "   border-width: 3px;"
+           "   border-color: black;"
+           "};";
+  }
 
-    static auto getPathToSaphfireIcon() -> QString {
-        return ":/img/saphfire.png";
-    }
+  static auto getInactiveButtonStyle() -> QString {
+    return "QPushButton {"
+           "   background: none;"
+           "   background-image: url(:/img/deck.jpg);"
+           "   border-radius: 15px;"
+           "};";
+  }
 
-    static auto getPathToBoxIcon() -> QString {
-        return ":/img/box.png";
-    }
+  static auto getPressedButtonStyle() -> QString {
+    return "QPushButton {"
+           "   background: none;"
+           "   background-image: url(:/img/deck.jpg);"
+           "   border-style: solid;"
+           "   border-width: 3px;"
+           "   border-color: rgb(0, 214, 120);"
+           "   border-radius: 15px;"
+           "};";
+  }
+
+  static auto getPressedButtonChooseStyle() -> QString {
+    return "QPushButton {"
+           "   background: none;"
+           "   background-image: url(:/img/deck.jpg);"
+           "   border-style: solid;"
+           "   border-width: 3px;"
+           "   border-color: #ffba00;"
+           "   border-radius: 15px;"
+           "};";
+  }
+
+  static auto getButtonStyleUnderGameField() -> QString {
+    return "QPushButton {"
+           "   background: none;"
+           "   border: none;"
+           "   border-radius: 15px;"
+           "};";
+  }
+
+  static auto getPathToRubyIcon() -> QString { return ":/img/ruby.png"; }
+
+  static auto getPathToEmeraldIcon() -> QString { return ":/img/emeralds.png"; }
+
+  static auto getPathToSaphfireIcon() -> QString {
+    return ":/img/saphfire.png";
+  }
+
+  static auto getPathToBoxIcon() -> QString { return ":/img/box.png"; }
+
 
 };
+}  // namespace InSearchOfTreasure
 
-#endif // STYLE_HELPER_H
+#endif  // STYLE_HELPER_H

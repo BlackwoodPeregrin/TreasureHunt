@@ -1,11 +1,10 @@
 #include <iostream>
+#include <map>
 #include <random>
 #include <set>
 #include <vector>
-#include <map>
 
-
-namespace Nightmare {
+namespace InSearchOfTreasure {
 
 constexpr u_int8_t kColumnsField = 5;  // ширина игрового поля
 constexpr u_int8_t kRowsField = 5;     // высота игрового поля
@@ -120,8 +119,7 @@ class PlayingField {
 /*=== Класс Механики Игры ===*/
 class GameMechanics {
  public:
-  GameMechanics()
-      : m_field(nullptr), m_field_generate(false) {
+  GameMechanics() : m_field(nullptr), m_field_generate(false) {
     srand(time(0));
   }
   GameMechanics(GameMechanics const &other) = delete;
@@ -139,9 +137,10 @@ class GameMechanics {
     }
     m_field = new PlayingField;
     //
-    std::vector<std::pair<int, u_int8_t>> possible_colors({{Color::kBlue, kBlueChipCellInField},
-                                             {Color::kGreen, kGreenChipCellInField},
-                                             {Color::kRed, kRedChipCellInField}});
+    std::vector<std::pair<int, u_int8_t>> possible_colors(
+        {{Color::kBlue, kBlueChipCellInField},
+         {Color::kGreen, kGreenChipCellInField},
+         {Color::kRed, kRedChipCellInField}});
     // генерация игрового поля
     for (int row = 0; row < kRowsField; ++row) {
       for (int column = 0; column < kColumnsField; ++column) {
@@ -174,11 +173,12 @@ class GameMechanics {
   // поменять местами ячейки игрвого поля
   auto SwapCells(int row, int column) -> void {
     if (IsSelectedFreeCell(row, column)) {
-        std::swap(m_field->operator[](m_current_coord.first)[m_current_coord.second],
-                m_field->operator[](row)[column]);
-        // очищаем предидущие возможные перемещения
-        m_possible_steps.clear();
-        m_current_coord = {-1, -1};
+      std::swap(
+          m_field->operator[](m_current_coord.first)[m_current_coord.second],
+          m_field->operator[](row)[column]);
+      // очищаем предидущие возможные перемещения
+      m_possible_steps.clear();
+      m_current_coord = {-1, -1};
     }
   }
 
@@ -192,7 +192,7 @@ class GameMechanics {
       m_possible_steps.clear();
 
       if ((row > 0) && IsSelectedFreeCell(row - 1, column)) {
-          m_possible_steps.push_back({row - 1, column});
+        m_possible_steps.push_back({row - 1, column});
       }
 
       if ((row < kRowsField - 1) && IsSelectedFreeCell(row + 1, column)) {
@@ -209,8 +209,8 @@ class GameMechanics {
     }
   }
 
-  auto GetVectorPossibleSteps() const -> std::vector<std::pair<int,int>> {
-      return m_possible_steps;
+  auto GetVectorPossibleSteps() const -> std::vector<std::pair<int, int>> {
+    return m_possible_steps;
   }
 
   // получить координаты выбранной игровой фишки на поле
@@ -277,28 +277,28 @@ class GameMechanics {
 
   // проверка на победу в игре
   auto IsGameVictory() const -> bool {
-      for (auto [color, index_column] : m_expected_row) {
-          for (int row = 0; row < kRowsField; ++row) {
-              if (color != m_field->operator[](row)[index_column]->GetColor()) {
-                  return false;
-              }
-          }
+    for (auto [color, index_column] : m_expected_row) {
+      for (int row = 0; row < kRowsField; ++row) {
+        if (color != m_field->operator[](row)[index_column]->GetColor()) {
+          return false;
+        }
       }
-      return true;
+    }
+    return true;
   }
 
  protected:
-
-  auto GenerateColorChip_(std::vector<std::pair<int, u_int8_t>> &possible_colors) -> int {
+  auto GenerateColorChip_(
+      std::vector<std::pair<int, u_int8_t>> &possible_colors) -> int {
     //
     int index_color = rand() % possible_colors.size();
     int color = possible_colors[index_color].first;
     if (--possible_colors[index_color].second == 0) {
-        auto iter = possible_colors.begin();
-        for (int i = 0; i < index_color; ++i) {
-            ++iter;
-        }
-        possible_colors.erase(iter);
+      auto iter = possible_colors.begin();
+      for (int i = 0; i < index_color; ++i) {
+        ++iter;
+      }
+      possible_colors.erase(iter);
     }
     return color;
   }
@@ -317,7 +317,7 @@ class GameMechanics {
       int r_index = rand() % pos_chip_in_row.size();
       auto iter = pos_chip_in_row.begin();
       for (int j = 0; j < r_index; ++j) {
-          ++iter;
+        ++iter;
       }
       m_expected_row.insert({colors[i], *iter});
       // удаление элемента из списка генерации
@@ -347,10 +347,10 @@ class GameMechanics {
 
  private:
   std::pair<int, int> m_current_coord{-1, -1};
-  std::vector<std::pair<int,int>> m_possible_steps;
+  std::vector<std::pair<int, int>> m_possible_steps;
   PlayingField *m_field;
   std::map<int, int> m_expected_row;
   bool m_field_generate;
 };
 
-}  // namespace Nightmare
+}  // namespace InSearchOfTreasure
