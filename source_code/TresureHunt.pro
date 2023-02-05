@@ -10,18 +10,18 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
-    viwe/view_game.cpp
+    view/view_game.cpp
 
 HEADERS += \
     controller/controller_game.hpp \
     model/model_game.hpp \
-    viwe/style_helper.h \
-    viwe/victory_dialog.h \
-    viwe/view_game.h
+    view/style_helper.h \
+    view/victory_dialog.h \
+    view/view_game.h
 
 FORMS += \
-    viwe/ui/victory_dialog.ui \
-    viwe/ui/view_game.ui
+    view/ui/victory_dialog.ui \
+    view/ui/view_game.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
