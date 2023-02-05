@@ -10,18 +10,18 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
-    view_game.cpp
+    viwe/view_game.cpp
 
 HEADERS += \
-    controller_game.hpp \
-    model_game.hpp \
-    style_helper.h \
-    victory_dialog.h \
-    view_game.h
+    controller/controller_game.hpp \
+    model/model_game.hpp \
+    viwe/style_helper.h \
+    viwe/victory_dialog.h \
+    viwe/view_game.h
 
 FORMS += \
-    victory_dialog.ui \
-    view_game.ui
+    ui/victory_dialog.ui \
+    ui/view_game.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -32,6 +32,6 @@ RESOURCES += \
     image.qrc
 
 DISTFILES += \
-    application_icon.png
+    icons/application_icon.png
 
-ICON += application_icon.png
+ICON += icons/application_icon.png

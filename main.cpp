@@ -1,6 +1,6 @@
 #include <QApplication>
 
-#include "view_game.h"
+#include "viwe/view_game.h"
 
 int main(int argc, char *argv[]) {
   QApplication a(argc, argv);

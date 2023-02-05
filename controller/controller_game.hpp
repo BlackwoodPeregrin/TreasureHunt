@@ -1,7 +1,7 @@
 #ifndef ControllerGame_GAME_HPP
 #define ControllerGame_GAME_HPP
 
-#include "model_game.hpp"
+#include "../model/model_game.hpp"
 
 namespace InSearchOfTreasure {
 // контроллер реализован в паттерне Singletone

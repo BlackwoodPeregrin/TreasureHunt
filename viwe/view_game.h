@@ -9,7 +9,7 @@
 #include <mutex>
 #include <thread>
 
-#include "controller_game.hpp"
+#include "../controller/controller_game.hpp"
 #include "victory_dialog.h"
 
 QT_BEGIN_NAMESPACE
